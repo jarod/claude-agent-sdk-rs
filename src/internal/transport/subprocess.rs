@@ -315,6 +315,57 @@ impl SubprocessTransport {
             }
         }
 
+        // Add additional directories
+        for dir in &self.options.add_dirs {
+            args.push("--add-dir".to_string());
+            args.push(dir.display().to_string());
+        }
+
+        // Add MCP servers configuration
+        match &self.options.mcp_servers {
+            crate::types::mcp::McpServers::Empty => {
+                // No MCP servers configured
+            }
+            crate::types::mcp::McpServers::Dict(servers) => {
+                if !servers.is_empty() {
+                    // Build mcpServers config, stripping SDK server instances
+                    let mut servers_for_cli: HashMap<String, serde_json::Value> = HashMap::new();
+
+                    for (name, config) in servers {
+                        let config_json = match config {
+                            crate::types::mcp::McpServerConfig::Stdio(stdio) => {
+                                serde_json::to_value(stdio).unwrap_or_default()
+                            }
+                            crate::types::mcp::McpServerConfig::Sse(sse) => {
+                                serde_json::to_value(sse).unwrap_or_default()
+                            }
+                            crate::types::mcp::McpServerConfig::Http(http) => {
+                                serde_json::to_value(http).unwrap_or_default()
+                            }
+                            crate::types::mcp::McpServerConfig::Sdk(sdk) => {
+                                // For SDK servers, pass type and name but not the instance
+                                serde_json::json!({
+                                    "type": "sdk",
+                                    "name": sdk.name
+                                })
+                            }
+                        };
+                        servers_for_cli.insert(name.clone(), config_json);
+                    }
+
+                    let mcp_config = serde_json::json!({
+                        "mcpServers": servers_for_cli
+                    });
+                    args.push("--mcp-config".to_string());
+                    args.push(mcp_config.to_string());
+                }
+            }
+            crate::types::mcp::McpServers::Path(path) => {
+                args.push("--mcp-config".to_string());
+                args.push(path.display().to_string());
+            }
+        }
+
         // Add extra args
         for (key, value) in &self.options.extra_args {
             args.push(format!("--{}", key));
