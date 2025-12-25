@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 ---
+## [0.4.0](https://github.com/compare/v0.3.3..v0.4.0) - 2025-12-25
+
+### Features
+
+- add `--settings` CLI parameter support with `Settings` enum
+- add `--setting-sources` CLI parameter support
+- add MCP servers configuration support
+
+---
 ## [0.3.3](https://github.com/compare/v0.3.2..v0.3.3) - 2025-12-18
 
 ### Bug Fixes

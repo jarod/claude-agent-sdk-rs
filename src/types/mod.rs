@@ -6,3 +6,4 @@ pub mod mcp;
 pub mod messages;
 pub mod permissions;
 pub mod plugin;
+pub mod settings;

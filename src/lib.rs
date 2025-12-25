@@ -156,6 +156,7 @@ pub use types::{
     messages::*,
     permissions::*,
     plugin::*,
+    settings::*,
 };
 
 // Re-export public API

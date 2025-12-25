@@ -189,6 +189,25 @@ impl SubprocessTransport {
         )))
     }
 
+    /// Build settings value from Settings enum.
+    ///
+    /// Returns the settings value as a string suitable for --settings CLI arg:
+    /// - For Path: the file path as string
+    /// - For Json: the JSON string as-is
+    /// - For Object: serialized JSON string
+    fn build_settings_value(&self) -> Option<String> {
+        use crate::types::settings::Settings;
+
+        match &self.options.settings {
+            None => None,
+            Some(Settings::Path(path)) => Some(path.display().to_string()),
+            Some(Settings::Json(json_str)) => Some(json_str.clone()),
+            Some(Settings::Object(obj)) => {
+                serde_json::to_string(obj).ok()
+            }
+        }
+    }
+
     /// Build command arguments from options
     fn build_command(&self) -> Vec<String> {
         let mut args = vec![
@@ -319,6 +338,12 @@ impl SubprocessTransport {
         for dir in &self.options.add_dirs {
             args.push("--add-dir".to_string());
             args.push(dir.display().to_string());
+        }
+
+        // Handle settings and sandbox: merge sandbox into settings if both are provided
+        if let Some(settings_value) = self.build_settings_value() {
+            args.push("--settings".to_string());
+            args.push(settings_value);
         }
 
         // Add MCP servers configuration

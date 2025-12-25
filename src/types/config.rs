@@ -10,6 +10,7 @@ use super::hooks::{HookEvent, HookMatcher};
 use super::mcp::McpServers;
 use super::permissions::CanUseToolCallback;
 use super::plugin::SdkPluginConfig;
+use super::settings::Settings;
 
 /// Main configuration options for Claude Agent
 #[derive(Clone, TypedBuilder)]
@@ -60,9 +61,9 @@ pub struct ClaudeAgentOptions {
     /// Path to Claude CLI
     #[builder(default, setter(into, strip_option))]
     pub cli_path: Option<PathBuf>,
-    /// Settings file path
-    #[builder(default, setter(into, strip_option))]
-    pub settings: Option<String>,
+    /// Settings configuration (file path, JSON string, or structured object)
+    #[builder(default, setter(strip_option))]
+    pub settings: Option<Settings>,
     /// Additional directories to include
     #[builder(default, setter(into))]
     pub add_dirs: Vec<PathBuf>,
