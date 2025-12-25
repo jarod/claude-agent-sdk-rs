@@ -366,6 +366,23 @@ impl SubprocessTransport {
             }
         }
 
+        // Add setting sources
+        // When None, pass empty string to disable filesystem settings (SDK isolation)
+        let sources_value = match &self.options.setting_sources {
+            Some(sources) => sources
+                .iter()
+                .map(|s| match s {
+                    crate::types::config::SettingSource::User => "user",
+                    crate::types::config::SettingSource::Project => "project",
+                    crate::types::config::SettingSource::Local => "local",
+                })
+                .collect::<Vec<_>>()
+                .join(","),
+            None => String::new(),
+        };
+        args.push("--setting-sources".to_string());
+        args.push(sources_value);
+
         // Add extra args
         for (key, value) in &self.options.extra_args {
             args.push(format!("--{}", key));
